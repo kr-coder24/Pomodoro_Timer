@@ -1,13 +1,15 @@
 const timer={
-    pomodoro:1,
+    pomodoro:25,
     shortBreak:5,
     longBreak:15,
     longBreakInterval:4,
     sessions:0,
 };
 const mainbutton=document.getElementById('js-btn');
+const buttonsound=new Audio('button-sound.mp3');
 mainbutton.addEventListener('click',()=>{
     const {action}=mainbutton.dataset;
+    buttonsound.play();
     if(action==='start'){
         startTimer();
     }
@@ -55,13 +57,17 @@ function startTimer(){
                 default:
                     changeMode('pomodoro');    
             }
+            if(Notification.permission==='granted'){
+                const text=timer.mode==='pomodoro'?'Get back to work!':'Take a break!';
+                new Notification(text);
+            }
+            document.querySelector(`[data-sound="${timer.mode}"]`).play();
             startTimer();
         }
 
     },1000);
 }
 function stopTimer(){
-    console.log('Timer stopped');
     clearInterval(interval);
     mainbutton.dataset.action='start';
     mainbutton.textContent='start';
@@ -75,6 +81,8 @@ function updateclock(){
     const sec=document.getElementById('js-seconds');
     min.textContent=minutes;
     sec.textContent=seconds;
+    const text=timer.mode==='pomodoro'?'Get back to work!':'Time for break';
+    document.title=`${minutes}:${seconds}-${text}`;
     const progress=document.getElementById('js-progress');
     progress.value=timer[timer.mode]*60-timer.remainingtime.total;
 }
@@ -100,6 +108,15 @@ function handleMode(event){
     }
 }
 document.addEventListener('DOMContentLoaded', () => {
-  changeMode('pomodoro');
+    if('Notification' in window){
+        if(Notification.permission!=="granted" && Notification.permission!=="denied"){
+            Notification.requestPermission().then(function (permission){
+                if(permission==='granted'){
+                    new Notification("Awesome! You will be notified at the start of each session");
+                }
+            });
+        }
+    }
+    changeMode('pomodoro');
 });
 
