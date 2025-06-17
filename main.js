@@ -5,9 +5,6 @@ const timer={
     longBreakInterval:4,
     sessions:0,
 };
-document.addEventListener('DOMContentLoaded', () => {
-  changeMode('pomodoro');
-});
 const mainbutton=document.getElementById('js-btn');
 mainbutton.addEventListener('click',()=>{
     const {action}=mainbutton.dataset;
@@ -78,6 +75,8 @@ function updateclock(){
     const sec=document.getElementById('js-seconds');
     min.textContent=minutes;
     sec.textContent=seconds;
+    const progress=document.getElementById('js-progress');
+    progress.value=timer[timer.mode]*60-timer.remainingtime.total;
 }
 function changeMode(mode){
     timer.mode=mode;
@@ -89,6 +88,7 @@ function changeMode(mode){
 document.querySelectorAll('button[data-mode]').forEach(e=>e.classList.remove('active'));
 document.querySelector(`[data-mode="${mode}"]`).classList.add('active');
 document.body.style.backgroundColor=`var(--${mode})`;
+document.getElementById('js-progress').setAttribute('max',timer.remainingtime.total);
 updateclock();
 }
 function handleMode(event){
@@ -99,3 +99,7 @@ function handleMode(event){
         changeMode(mode);
     }
 }
+document.addEventListener('DOMContentLoaded', () => {
+  changeMode('pomodoro');
+});
+
